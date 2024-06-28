@@ -1,0 +1,93 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+	<script th:inline="javascript">
+		// Function to validate form fields
+		function validateForm() {
+			var id = document.getElementById("id").value.trim();
+			var title = document.getElementById("title").value.trim();
+			var type = document.querySelector("select[name='type']").value;
+			var content = document.getElementById("content").value.trim();
+
+			if (id === '' || title === '' || type === '' || content === '') {
+				alert('Please fill in all fields.');
+				return false; // Prevent form submission
+			}
+			if (!Number.isInteger(id - 0)) {
+				alert('Enter correct id. and id should be Number');
+				return false;
+			}
+
+			return true; // Allow form submission
+		}
+
+		function update(id) {
+			console.log("id:- " + id);
+			fetch("http://localhost:8080/update?id=" + id, {method: "POST", headers: {"Content-type": "application/json"}}).then(resp => resp.json()).then(data => {
+				document.getElementById("id").value = data?.id;
+				document.getElementById("title").value = data?.title;
+				document.querySelector("select[name='type']").value = data?.type;
+				document.getElementById("content").value = data?.content;
+			})
+		}
+
+
+	</script>
+</head>
+
+<body>
+	<h1>Create New Publication</h1>
+
+	<form action="/save" method="post" onsubmit="return validateForm()">
+		<div>
+			<label>Publication Id :-</label>
+			<input type="text" id="id" name="id">
+		</div>
+		<div>
+			<label>Publication Title :-</label>
+			<input type="text" id="title" name="title">
+		</div>
+		<div>
+			<label>Publication type :-</label>
+			<select name="type">
+				<option>Science</option>
+				<option>Technology</option>
+				<option>Gaming</option>
+			</select>
+		</div>
+		<div>
+			<label>Publication Content :-</label>
+			<input type="text" id="content" name="content">
+		</div>
+		<div>
+			<button id-"submit">submit</button>
+		</div>
+	</form>
+
+	<p th:text="${publications}">Test</p>
+
+	<table border="1px solid">
+		<thead>
+			<th>Id</th>
+			<th>Title</th>
+			<th>Type</th>
+			<th>Content</th>
+			<th>Actions</th>
+		</thead>
+
+		<tbody>
+			<tr th:each="publications : ${publications}">
+				<td th:text="${publications.id}">1</td>
+				<td><a href="#" th:text="${publications.title}">Title ...</a></td>
+				<td th:text="${publications.type}">Text ...</td>
+				<td th:text="${publications.content}">Text ...</td>
+				<td><a th:href="@{'/delete/' + ${publications.id}}">delete</a>
+				<button th:data-name="${publications.id}" type="button"
+						th:onclick="update(this.getAttribute('data-name'))" id="update">update</button></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+
+</html>
